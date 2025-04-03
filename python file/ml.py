@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-"""ML.ipynb
-
 # **Linear Regression**
 """
 
@@ -224,4 +221,126 @@ sns.heatmap(confusion_matrix(Y_test,Y_pred),cmap="Blues",annot=True)
 plt.title('Confusion Matrix')
 plt.xlabel('Predicted')
 plt.ylabel('True')
+plt.show()
+
+"""# K-Means Clustering"""
+
+from sklearn.cluster import KMeans
+from sklearn.datasets import load_iris
+
+data = load_iris()
+X = data.data
+
+Kmeans = KMeans(n_clusters=3,random_state=42)
+Kmeans.fit(X)
+
+centers = Kmeans.cluster_centers_
+labels = Kmeans.labels_
+
+plt.scatter(X[:, 0], X[:, 1], c=labels)
+plt.scatter(centers[:, 0], centers[:, 1], marker='*', c='red', s=200)
+plt.xlabel(data.feature_names[0])  # Label x-axis
+plt.ylabel(data.feature_names[1])  # Label y-axis
+plt.title('K-Means Clustering on Iris Dataset')
+plt.show()
+
+"""# SVM"""
+
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score , confusion_matrix
+from sklearn.metrics import classification_report as classification_report_function
+
+data = load_iris()
+
+X = data.data[:,:2]
+Y = data.target
+
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=42)
+
+SVM_Model=SVC(kernel='linear',random_state=42)
+SVM_Model.fit(X_train,Y_train)
+
+Y_pred = SVM_Model.predict(X_test)
+
+accuracy = accuracy_score(Y_test, Y_pred)
+
+print(f'Accuracy Score is {accuracy*100:.2f}%')
+
+def plot_decision_boundary(X, y, model):
+  x_min,x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+  y_min,y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+  xx, yy = np.meshgrid(np.linspace(x_min, x_max, 100), np.linspace(y_min, y_max, 100))
+  Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+  Z = Z.reshape(xx.shape)
+  plt.contourf(xx, yy, Z, alpha=0.4)
+  plt.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis',edgecolors='k')
+  plt.xlabel('Feature 1')
+  plt.ylabel('Feature 2')
+  plt.title('SVM Decision Boundary')
+  plt.show()
+
+plot_decision_boundary(X,Y,SVM_Model)
+
+"""# **DBSCAN Clustering**"""
+
+from sklearn.cluster import DBSCAN
+from sklearn.metrics import accuracy_score,adjusted_rand_score
+from sklearn.preprocessing import StandardScaler
+
+X, Y = load_iris(return_X_y=True)
+
+X = StandardScaler().fit_transform(X)
+
+dbscan = DBSCAN(eps=0.5, min_samples=5)
+
+labels = dbscan.fit_predict(X)
+
+accuracy = accuracy_score(Y, labels)
+
+print(f'Accuracy Score is {accuracy*100:.2f}%')
+
+plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis',edgecolors='k',alpha=0.7)
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+plt.title('DBSCAN Clustering')
+plt.show()
+
+"""# **PCA**"""
+
+from sklearn.decomposition import PCA
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+data = load_iris()
+X= data.data
+Y= data.target
+
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=42)
+
+pca = PCA(n_components=2)
+X_train_pca = pca.fit_transform(X_train)
+X_test_pca = pca.transform(X_test)
+
+elf = RandomForestClassifier()
+elf.fit(X_train_pca, Y_train)
+
+Y_pred=elf.predict(X_test_pca)
+
+accuracy = accuracy_score(Y_test, Y_pred)
+print(f'Accuracy Score is {accuracy*100:.2f}%')
+
+plt.figure(figsize=(8, 5))
+plt.plot(np.cumsum(pca.explained_variance_ratio_), marker='o', linestyle='--')
+plt.xlabel('Number of Components')
+plt.ylabel('Cumulative Explained Variance')
+plt.title('Cumulative Explained Variance by PCA Components')
+plt.grid()
+plt.show()
+
+plt.figure(figsize=(8, 5))
+plt.scatter(X_train_pca[:, 0], X_train_pca[:, 1], c=Y_train, cmap='viridis', edgecolors='k', alpha=0.7)
+plt.colorbar(label='Digital Label')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.title('PCA Visualization on Iris Dataset')
 plt.show()
